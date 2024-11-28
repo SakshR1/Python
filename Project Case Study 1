@@ -1,0 +1,94 @@
+Problem statement
+Given File 'startup_funding.csv'
+
+Check the trend of investments over the years. To check the trend, find -
+
+Total number of fundings done in each year.
+
+Plot a line graph between year and number of fundings. Take year on x-axis and number of fundings on y-axis.
+
+Print year-wise total number of fundings also. Print years in ascending order.
+
+Note :
+There is some error in the 'Date' feature. Make sure to handle that.
+
+Output Format :
+year1 TotalFunding1
+year2 TotalFunding2
+. . . '''
+
+# Open and read data file as specified in the question
+# Print the required output in given format
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('startup_funding.csv')
+df.Date = df.Date.str[-4:]
+df = df.groupby(by='Date').size()
+year_No_dict = df.to_dict()
+year = []
+no_of_funding=[]
+for k,v in year_No_dict.items():
+    no_of_funding.append(v)
+    year.append(k)
+    print(k,v)
+
+    
+plt.plot(year,no_of_funding)
+plt.title('trend of investments over the years')
+plt.xlabel('Year')
+plt.ylabel('No. of Fundings')
+plt.show()
+
+
+"""Given File 'startup_funding.csv'
+
+Find out which cities are generally chosen for starting a startup.
+
+Find top 10 Indian cities which have most number of startups ?
+
+Plot a pie chart and visualise it.
+
+Print the city name and number of startups in that city also.
+
+Note :
+Take city name "Delhi" as "New Delhi".
+
+Check the case-sensitiveness of cities also. That means - at some place, instead of "Bangalore", "bangalore" is given. Take city name as "Bangalore".
+
+For few startups multiple locations are given, one Indian and one Foreign. Count those startups in Indian startup also. Indian city name is first.
+
+Print the city in descending order with respect to the number of startups.
+
+Output Format :
+city1 number1
+city2 number2
+. . . """
+
+# Open and read data file as specified in the question
+# Print the required output in given format
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('startup_funding.csv')
+df = df.dropna(subset=['CityLocation'])
+def separateCity(city): 
+    return city.split('/')[0].strip() 
+df['CityLocation']=df['CityLocation'].apply(separateCity)
+df[df['CityLocation']=='bangalore'] = 'Bangalore'
+df[df['CityLocation']=='Delhi'] = 'New Delhi'
+
+df = df.groupby(by='CityLocation').size()
+df = df.nlargest(10)
+df = df.to_dict()
+City=[]
+no_of_statup=[]
+for i , j in df.items():
+    City.append(i)
+    no_of_statup.append(j)
+    print(i,j)
+
+plt.pie(no_of_statup,labels=City,autopct='%.2f')
+plt.show()
