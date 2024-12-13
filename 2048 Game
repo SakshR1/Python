@@ -1,0 +1,111 @@
+import random
+import os
+
+def start_game():
+    matrix = [[0] * 4 for _ in range(4)]
+    add_new_tile(matrix)
+    add_new_tile(matrix)
+    return matrix
+
+def add_new_tile(matrix):
+    x, y = random.randint(0, 3), random.randint(0, 3)
+    while matrix[x][y] != 0:
+        x, y = random.randint(0, 3), random.randint(0, 3)
+    matrix[x][y] = 4 if random.random() > 0.9 else 2
+
+def compress(matrix):
+    new_matrix = [[0] * 4 for _ in range(4)]
+    for i in range(4):
+        pos = 0
+        for j in range(4):
+            if matrix[i][j] != 0:
+                new_matrix[i][pos] = matrix[i][j]
+                pos += 1
+    return new_matrix
+
+def merge(matrix):
+    for i in range(4):
+        for j in range(3):
+            if matrix[i][j] == matrix[i][j + 1] and matrix[i][j] != 0:
+                matrix[i][j] *= 2
+                matrix[i][j + 1] = 0
+    return matrix
+
+def reverse(matrix):
+    new_matrix = []
+    for i in range(4):
+        new_matrix.append(matrix[i][::-1])
+    return new_matrix
+
+def transpose(matrix):
+    new_matrix = [[0] * 4 for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            new_matrix[j][i] = matrix[i][j]
+    return new_matrix
+
+def move_left(matrix):
+    matrix = compress(matrix)
+    matrix = merge(matrix)
+    matrix = compress(matrix)
+    return matrix
+
+def move_right(matrix):
+    matrix = reverse(matrix)
+    matrix = move_left(matrix)
+    return reverse(matrix)
+
+def move_up(matrix):
+    matrix = transpose(matrix)
+    matrix = move_left(matrix)
+    return transpose(matrix)
+
+def move_down(matrix):
+    matrix = transpose(matrix)
+    matrix = move_right(matrix)
+    return transpose(matrix)
+
+def is_game_over(matrix):
+    for row in matrix:
+        if 2048 in row:
+            return True, "You Win!"
+    for i in range(4):
+        for j in range(4):
+            if matrix[i][j] == 0:
+                return False, ""
+            if j < 3 and matrix[i][j] == matrix[i][j + 1]:
+                return False, ""
+            if i < 3 and matrix[i][j] == matrix[i + 1][j]:
+                return False, ""
+    return True, "Game Over!"
+
+def print_matrix(matrix):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    for row in matrix:
+        print("\t".join(map(str, row)))
+    print("\nUse UDLR to move, Q to quit.")
+
+def main():
+    matrix = start_game()
+    while True:
+        print_matrix(matrix)
+        game_over, message = is_game_over(matrix)
+        if game_over:
+            print(message)
+            break
+        move = input("Enter your move (UDLR or Q to quit): ").upper()
+        if move == 'Q':
+            print("Game Quit.")
+            break
+        elif move == 'U':
+            matrix = move_up(matrix)
+        elif move == 'D':
+            matrix = move_down(matrix)
+        elif move == 'L':
+            matrix = move_left(matrix)
+        elif move == 'R':
+            matrix = move_right(matrix)
+        add_new_tile(matrix)
+
+if __name__ == "__main__":
+    main()
